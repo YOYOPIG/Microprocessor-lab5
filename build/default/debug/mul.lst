@@ -1,0 +1,142 @@
+
+
+Microchip Technology PIC18 Macro Assembler V1.43 build -156212558 
+                                                                                                           Mon Oct 29 19:50:00 2018
+
+
+     1                           	processor	18F4520
+     2                           	opt	pw 132
+     3                           	psect	mytext,local,reloc=2,class=CODE,delta=1
+     4  0000                     stk_offset	set	0
+     5  0000                     auto_size	set	0
+     6                           
+     7                           ; stack_auto defines a symbol /name/_offset which equates to the
+     8                           ; stack offset of the auto object in question
+     9  0000                     
+    10                           ; stack_param defines a symbol /name/_offset which equates to the
+    11                           ; stack offset of the parameter object in question
+    12  0000                     
+    13                           ; alloc_stack adjusts the SP to allocate space for auto objects
+    14                           ; it also links in to the btemp symbol so that can be used
+    15  0000                     
+    16                           ; restore_stack adjusts the SP to remove all auto and parameter
+    17                           ; objects from the stack prior to returning from a function
+    18  0000                     
+    19                           	psect	mytext
+    20  007F2C                     _mul:
+    21                           	opt stack 0
+    22                           
+    23                           ; move input into regs, TRISA,B for ans
+    24  007F2C  6A89               	clrf	3977,c
+    25  007F2E  6A92               	clrf	3986,c
+    26  007F30  6A93               	clrf	3987,c
+    27  007F32  C001 FF8A          	movff	1,3978
+    28  007F36  C003 FF8B          	movff	3,3979
+    29  007F3A  6A96               	clrf	3990,c	; ctr
+    30                           
+    31                           ;shift b (depends on c bit)
+    32  007F3C  B08B               	btfsc	3979,0,c
+    33  007F3E  CF8A FF93          	movff	3978,3987
+    34  007F42  0E02               	movlw	2
+    35  007F44  CFE8 FF96          	movff	wreg,3990
+    36  007F48  B28B               	btfsc	3979,1,c
+    37  007F4A  D832               	rcall	SHIFTN
+    38  007F4C  0E03               	movlw	3
+    39  007F4E  CFE8 FF96          	movff	wreg,3990
+    40  007F52  B48B               	btfsc	3979,2,c
+    41  007F54  D82D               	rcall	SHIFTN
+    42  007F56  0E04               	movlw	4
+    43  007F58  CFE8 FF96          	movff	wreg,3990
+    44  007F5C  B68B               	btfsc	3979,3,c
+    45  007F5E  D828               	rcall	SHIFTN
+    46  007F60  0E05               	movlw	5
+    47  007F62  CFE8 FF96          	movff	wreg,3990
+    48  007F66  B88B               	btfsc	3979,4,c
+    49  007F68  D823               	rcall	SHIFTN
+    50  007F6A  0E06               	movlw	6
+    51  007F6C  CFE8 FF96          	movff	wreg,3990
+    52  007F70  BA8B               	btfsc	3979,5,c
+    53  007F72  D81E               	rcall	SHIFTN
+    54  007F74  0E07               	movlw	7
+    55  007F76  CFE8 FF96          	movff	wreg,3990
+    56  007F7A  BC8B               	btfsc	3979,6,c
+    57  007F7C  D819               	rcall	SHIFTN
+    58  007F7E  0E08               	movlw	8
+    59                           
+    60                           ;movff WREG, TRISE
+    61  007F80  6A96               	clrf	3990,c
+    62  007F82  2A96               	incf	3990,f,c
+    63  007F84  2A96               	incf	3990,f,c
+    64  007F86  2A96               	incf	3990,f,c
+    65  007F88  2A96               	incf	3990,f,c
+    66  007F8A  2A96               	incf	3990,f,c
+    67  007F8C  2A96               	incf	3990,f,c
+    68  007F8E  2A96               	incf	3990,f,c
+    69  007F90  2A96               	incf	3990,f,c
+    70  007F92  F000               	nop	
+    71  007F94  F000               	nop	
+    72  007F96  F000               	nop	
+    73  007F98  CFE8 F020          	movff	wreg,32
+    74  007F9C  BE8B               	btfsc	3979,7,c
+    75  007F9E  D81C               	rcall	SHIFTN2
+    76  007FA0  CF92 F001          	movff	3986,1
+    77  007FA4  CF93 F002          	movff	3987,2
+    78  007FA8  F000               	nop	
+    79  007FAA  F000               	nop	
+    80  007FAC  F000               	nop	
+    81  007FAE  0012               	return	
+    82  007FB0                     SHIFTN:
+    83  007FB0  6AE8               	clrf	wreg,c
+    84  007FB2  CF8A FF95          	movff	3978,3989
+    85  007FB6  6A89               	clrf	3977,c
+    86  007FB8                     loop:
+    87  007FB8  2E96               	decfsz	3990,f,c
+    88  007FBA  D00B               	goto	shift
+    89  007FBC  5095               	movf	3989,w,c
+    90  007FBE  2693               	addwf	3987,f,c
+    91                           
+    92                           ;here
+    93  007FC0  5089               	movf	3977,w,c
+    94  007FC2  2292               	addwfc	3986,f,c
+    95  007FC4  F000               	nop	
+    96  007FC6  F000               	nop	
+    97  007FC8  CF93 F001          	movff	3987,1
+    98  007FCC  CF92 F000          	movff	3986,0
+    99  007FD0  0012               	return	
+   100  007FD2                     shift:
+   101  007FD2  3695               	rlcf	3989,f,c
+   102  007FD4  3689               	rlcf	3977,f,c
+   103  007FD6  D7F0               	goto	loop
+   104  007FD8                     SHIFTN2:
+   105  007FD8  6AE8               	clrf	wreg,c
+   106  007FDA  CF8A FF95          	movff	3978,3989
+   107  007FDE  6A89               	clrf	3977,c
+   108  007FE0                     loop2:
+   109  007FE0  2F20               	decfsz	32,f,b
+   110  007FE2  D00B               	goto	shift2
+   111  007FE4  5095               	movf	3989,w,c
+   112  007FE6  2693               	addwf	3987,f,c
+   113                           
+   114                           ;here
+   115  007FE8  5089               	movf	3977,w,c
+   116  007FEA  2292               	addwfc	3986,f,c
+   117  007FEC  F000               	nop	
+   118  007FEE  F000               	nop	
+   119  007FF0  CF93 F001          	movff	3987,1
+   120  007FF4  CF92 F000          	movff	3986,0
+   121  007FF8  0012               	return	
+   122  007FFA                     shift2:
+   123  007FFA  3695               	rlcf	3989,f,c
+   124  007FFC  3689               	rlcf	3977,f,c
+   125  007FFE  D7F0               	goto	loop2
+   126                           wreg	equ	0xFE8
+
+
+Microchip Technology PIC18 Macro Assembler V1.43 build -156212558 
+Symbol Table                                                                                               Mon Oct 29 19:50:00 2018
+
+                        LATA 000F89                          LATB 000F8A                          LATC 000F8B  
+                        WREG 000FE8                          _mul 7F2C                          loop 7FB8  
+                       TRISA 000F92                         TRISB 000F93                         TRISD 000F95  
+                       TRISE 000F96                         loop2 7FE0                         shift 7FD2  
+                      SHIFTN 7FB0                        shift2 7FFA                       SHIFTN2 7FD8  
